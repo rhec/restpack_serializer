@@ -66,15 +66,20 @@ module RestPack
 
     def add_links(model, data)
       self.class.associations.each do |association|
-        data[:links] ||= {}
+        data[:links] ||= {}        
         links_value = case
         when association.macro == :belongs_to
           model.send(association.foreign_key).try(:to_s)
         when association.macro.to_s.match(/has_/)
-          if model.send(association.name).loaded?
-            model.send(association.name).collect { |associated| associated.id.to_s }
+          scope_key = :"#{association.name}_association_scope"
+          if respond_to?(scope_key)
+            send(scope_key).pluck(:id).map(&:to_s)
           else
-            model.send(association.name).pluck(:id).map(&:to_s)
+            if model.send(association.name).loaded?
+              model.send(association.name).collect { |associated| associated.id.to_s }
+            else
+              model.send(association.name).pluck(:id).map(&:to_s)
+            end
           end
         end
         unless links_value.blank?
