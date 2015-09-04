@@ -50,6 +50,7 @@ module RestPack
       add_custom_attributes(data)
       add_links(model, data)
 
+
       Symbolizer.recursive_symbolize(data)
     end
 
@@ -72,8 +73,13 @@ module RestPack
           model.send(association.foreign_key).try(:to_s)
         when association.macro.to_s.match(/has_/)
           scope_key = :"#{association.name}_association_scope"
+          scope_filter = :"#{association.name}_association_loaded_filter"
           if respond_to?(scope_key)
-            send(scope_key).pluck(:id).map(&:to_s)
+            if model.send(association.name).loaded? && respond_to?(scope_filter)
+              model.send(association.name).select { |associated| send(scope_filter, associated) }.collect { |associated| associated.id.to_s }
+            else
+              send(scope_key).pluck(:id).map(&:to_s)
+            end
           else
             if model.send(association.name).loaded?
               model.send(association.name).collect { |associated| associated.id.to_s }
