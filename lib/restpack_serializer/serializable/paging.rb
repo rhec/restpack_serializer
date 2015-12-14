@@ -34,19 +34,17 @@ module RestPack::Serializer::Paging
     end
 
     def serialize_meta(page, options)
+
       meta = {
           page: page.current_page,
           page_size: page.limit_value,
           count: page.total_count,
-          include: options.include,
           page_count: page.total_pages,
-          previous_page: page.prev_page,
-          next_page: page.next_page
       }
 
       meta[:first_href] = page_href(1, options)
-      meta[:previous_href] = page_href(meta[:previous_page], options)
-      meta[:next_href] = page_href(meta[:next_page], options)
+      meta[:previous_href] = page_href(page.prev_page, options)
+      meta[:next_href] = page_href(page.next_page, options)
       meta[:last_href] = page_href(meta[:page_count], options)
       meta
     end
