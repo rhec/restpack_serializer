@@ -10,6 +10,7 @@ module RestPack
       end
 
       def side_load_belongs_to
+        options.context[:singular] = true
         foreign_keys = @models.map { |model| model.send(@association.foreign_key) }.uniq.compact
         side_load = foreign_keys.any? ? @association.klass.find(foreign_keys) : []
         json_model_data = side_load.map { |model| @serializer.as_json(model, @root_options.context) }
@@ -18,6 +19,7 @@ module RestPack
 
       def side_load_has_many
         has_association_relation do |options|
+          options.context[:singular] = false
           # add dynamic filters from @root_options
           extra_scope = @root_options.context.fetch(:"#{@association.name}_association_scope", nil)
           if extra_scope
@@ -35,6 +37,7 @@ module RestPack
 
       def side_load_has_and_belongs_to_many
         has_association_relation do |options|
+          options.context[:singular] = false
           join_table_name = @association.join_table
           join_clause = "join #{join_table_name} on #{@association.plural_name}.id = #{join_table_name}.#{@association.class_name.foreign_key}"
           options.scope = options.scope.joins(join_clause)

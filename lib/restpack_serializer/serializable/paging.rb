@@ -34,7 +34,8 @@ module RestPack::Serializer::Paging
     end
 
     def serialize_meta(page, options)
-
+      # Singular resources don't require any of this metadata
+      return {} if options.context.fetch(:singular, false)
       meta = {
           page: page.current_page,
           page_size: page.limit_value,
