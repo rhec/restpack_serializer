@@ -10,10 +10,11 @@ module RestPack
       end
 
       def side_load_belongs_to
-        options.context[:singular] = true
+        context = @root_options.context.dup
+        context[:singular] = true
         foreign_keys = @models.map { |model| model.send(@association.foreign_key) }.uniq.compact
         side_load = foreign_keys.any? ? @association.klass.find(foreign_keys) : []
-        json_model_data = side_load.map { |model| @serializer.as_json(model, @root_options.context) }
+        json_model_data = side_load.map { |model| @serializer.as_json(model, context) }
         { @association.plural_name.to_sym => json_model_data, meta: { } }
       end
 
