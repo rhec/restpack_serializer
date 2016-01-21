@@ -1,7 +1,7 @@
 module RestPack::Serializer
   class Options
-    attr_accessor :page, :page_size, :include, :filters, :serializer,
-                  :model_class, :scope, :context, :include_links,
+    attr_accessor :page, :page_size, :include, :filters, :custom_filters,
+                   :serializer, :model_class, :scope, :context, :include_links,
                   :sorting
 
     def initialize(serializer, params = {}, scope = nil, context = {})
@@ -10,6 +10,7 @@ module RestPack::Serializer
       @page_size = params[:page_size] ? params[:page_size].to_i : RestPack::Serializer.config.page_size
       @include = params[:include] ? params[:include].split(',') : []
       @filters = filters_from_params(params, serializer)
+      @custom_filters = custom_filters_from_params(params, serializer)
       @sorting = sorting_from_params(params, serializer)
       @serializer = serializer
       @model_class = serializer.model_class
@@ -51,6 +52,10 @@ module RestPack::Serializer
       @filters.sort.map { |k,v| map_filter_ids(k,v) }.join('&')
     end
 
+    def custom_filters_as_url_params
+      @custom_filters.sort.map { |k,v| map_filter_ids(k,v) }.join('&')
+    end
+
     def sorting_as_url_params
       sorting_values = sorting.map { |k, v| v == :asc ? k : "-#{k}" }.join(',')
       "sort=#{sorting_values}"
@@ -61,6 +66,16 @@ module RestPack::Serializer
     def filters_from_params(params, serializer)
       filters = {}
       serializer.filterable_by.each do |filter|
+        [filter, "#{filter}s".to_sym].each do |key|
+          filters[filter] = params[key].to_s.split(',') if params[key]
+        end
+      end
+      filters
+    end
+
+    def custom_filters_from_params(params, serializer)
+      filters = {}
+      serializer.custom_filterable_by.each do |filter|
         [filter, "#{filter}s".to_sym].each do |key|
           filters[filter] = params[key].to_s.split(',') if params[key]
         end

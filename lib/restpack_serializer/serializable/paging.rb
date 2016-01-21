@@ -61,6 +61,7 @@ module RestPack::Serializer::Paging
       params << "include=#{options.include.join(',')}" if options.include.any?
       params << options.sorting_as_url_params if options.sorting.any?
       params << options.filters_as_url_params if options.filters.any?
+      params << options.custom_filters_as_url_params if options.custom_filters.any?
 
       url += '?' + params.join('&') if params.any?
       url
