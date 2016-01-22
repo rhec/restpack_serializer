@@ -8,8 +8,11 @@ module RestPack::Serializer::Paging
 
     def page_with_options(options)
       page = options.scope_with_filters.page(options.page).per(options.page_size)
-      page = page.reorder(options.sorting) if options.sorting.any?
-
+      if options.string_sorting
+        page = page.reorder(options.string_sorting)
+      else
+        page = page.reorder(options.sorting) if options.sorting.any?  
+      end
       result = RestPack::Serializer::Result.new
       result.resources[self.key] = serialize_page(page, options)
       result.meta[self.key] = serialize_meta(page, options)
