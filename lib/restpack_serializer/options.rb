@@ -49,11 +49,11 @@ module RestPack::Serializer
     end
 
     def filters_as_url_params
-      @filters.sort.map { |k,v| map_filter_ids(k,v) }.join('&')
+      @filters.stringify_keys.sort.map { |k,v| map_filter_ids(k,v) }.join('&')
     end
 
     def custom_filters_as_url_params
-      @custom_filters.sort.map { |k,v| map_filter_ids(k,v) }.join('&')
+      @custom_filters.stringify_keys.sort.map { |k,v| map_filter_ids(k,v) }.join('&')
     end
 
     def sorting_as_url_params
