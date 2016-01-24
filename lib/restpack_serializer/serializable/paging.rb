@@ -8,11 +8,7 @@ module RestPack::Serializer::Paging
 
     def page_with_options(options)
       page = options.scope_with_filters.page(options.page).per(options.page_size)
-      if options.string_sorting
-        page = page.reorder(options.string_sorting)
-      else
-        page = page.reorder(options.sorting) if options.sorting.any?  
-      end
+      page = page.reorder(sort_clause(options.sorting)) if options.sorting.any?
       result = RestPack::Serializer::Result.new
       result.resources[self.key] = serialize_page(page, options)
       result.meta[self.key] = serialize_meta(page, options)
@@ -68,6 +64,13 @@ module RestPack::Serializer::Paging
 
       url += '?' + params.join('&') if params.any?
       url
+    end
+
+    def sort_clause sorting_parameters
+      sorting_parameters.map do |col_name, sort_direction| 
+        col_name = "lower(#{col_name})" if case_insensitive_sorting_attributes.include? col_name
+        [col_name, sort_direction].join(" ")
+      end.join(",")
     end
   end
 end

@@ -88,18 +88,11 @@ module RestPack::Serializer
       return {} if sort_values.blank? || serializer.serializable_sorting_attributes.blank?
       sorting_parameters = {}
 
-      string_condition = false
       sort_values.each do |sort_value|
         sort_order = sort_value[0] == '-' ? :desc : :asc
         sort_value = sort_value.gsub(/\A\-/, '').downcase.to_sym
-        string_condition = true if sort_value =~ /lower\(/
         sorting_parameters[sort_value] = sort_order if serializer.serializable_sorting_attributes.include?(sort_value)
       end
-      if string_condition
-        # Build a string condition
-        @string_sorting = sorting_parameters.map { |pair| pair.join(" ") }.join(',')
-      end
-      # Return the hash condition
       sorting_parameters
     end
 

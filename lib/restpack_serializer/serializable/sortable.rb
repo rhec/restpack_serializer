@@ -3,14 +3,18 @@ module RestPack::Serializer::Sortable
 
   module ClassMethods
     attr_reader :serializable_sorting_attributes
+    attr_reader :case_insensitive_sorting_attributes
 
     def can_sort_by(*attributes)
-      @serializable_sorting_attributes = []
-      attributes.each do |attribute|
-        @serializable_sorting_attributes << attribute.to_sym
-        # Allow sorting by lowercase as well
-        @serializable_sorting_attributes << "lower(#{attribute})".to_sym
-      end
+      @serializable_sorting_attributes ||= []
+      @serializable_sorting_attributes += attributes
     end
+
+    def case_insensitive_sort_by(*attributes)
+      can_sort_by(*attributes)
+      @case_insensitive_sorting_attributes ||= []
+      @case_insensitive_sorting_attributes += attributes
+    end
+
   end
 end
