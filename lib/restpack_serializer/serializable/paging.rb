@@ -67,6 +67,7 @@ module RestPack::Serializer::Paging
     end
 
     def sort_clause sorting_parameters
+      case_insensitive_sorting_attributes ||= []
       sorting_parameters.map do |col_name, sort_direction| 
         col_name = "lower(#{col_name})" if case_insensitive_sorting_attributes.include? col_name
         [col_name, sort_direction].join(" ")
