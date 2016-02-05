@@ -31,7 +31,7 @@ module RestPack::Serializer
               # yep, it's a filter
               suffix = key.slice((suffix_position+1)..-1)
               operator = serializer.map_date_filter_suffix_to_operator(suffix)
-              clause = "#{column_name} #{operator} ?"
+              clause = "#{model_class.table_name}.#{column_name} #{operator} ?"
               @scope = @scope.where(clause, DateTime.parse(value[0]))
               next
             end
