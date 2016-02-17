@@ -163,7 +163,7 @@ describe RestPack::Serializer::Paging do
         end
 
         it "includes the side-loads in page hrefs" do
-          page[:meta][:songs][:next_href].should == '/songs?page=2&include=albums,artists'
+          page[:meta][:songs][:next_href].should == '/songs?page=2&include=albums%2Cartists'
         end
 
         it "includes links" do

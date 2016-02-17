@@ -63,8 +63,23 @@ module RestPack::Serializer::Paging
       params << options.sorting_as_url_params if options.sorting.any?
       params << options.filters_as_url_params if options.filters.any?
 
+      params = escape_params(params)
+
       url += '?' + params.join('&') if params.any?
       url
+    end
+
+    def escape_params(params)
+      params.map do |param|
+        escape_param(param)
+      end.flatten
+    end
+
+    def escape_param(param_string)
+      param_string.split('&').map do |param|
+        key, value = param.split('=')
+        "#{key}=#{CGI::escape value}"
+      end
     end
   end
 end
