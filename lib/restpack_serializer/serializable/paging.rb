@@ -62,7 +62,10 @@ module RestPack::Serializer::Paging
       params << options.filters_as_url_params if options.filters.any?
       params << options.custom_filters_as_url_params if options.custom_filters.any?
 
-      url += '?' + params.join('&') if params.any?
+      # TODO: refactor all the param generating methods above to generate a hash directly instead
+      #       of string parameters
+      hash_params = Hash[params.map { |p| p.split("=") }.sort]
+      url += '?' + hash_params.to_query if params.any?
       url
     end
 

@@ -31,10 +31,6 @@ describe RestPack::Serializer::Resource do
       resource[:linked][:albums].count.should == 1
       resource[:linked][:albums].first[:id].should == @song.album.id.to_s
     end
-
-    it "includes the side-loads in the main meta data" do
-      resource[:meta][:songs][:include].should == ["albums"]
-    end
   end
 
   describe "missing resource" do

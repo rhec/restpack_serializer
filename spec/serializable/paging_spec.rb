@@ -23,9 +23,7 @@ describe RestPack::Serializer::Paging do
         page[:meta][:songs][:count].should == 18
         page[:meta][:songs][:page_count].should == 2
         page[:meta][:songs][:first_href].should == '/songs'
-        page[:meta][:songs][:previous_page].should == nil
         page[:meta][:songs][:previous_href].should == nil
-        page[:meta][:songs][:next_page].should == 2
         page[:meta][:songs][:next_href].should == '/songs?page=2'
         page[:meta][:songs][:last_href].should == '/songs?page=2'
       end
@@ -60,7 +58,6 @@ describe RestPack::Serializer::Paging do
         page[:meta][:songs][:page_count].should == 6
       end
       it "includes the custom page size in the page hrefs" do
-        page[:meta][:songs][:next_page].should == 2
         page[:meta][:songs][:next_href].should == '/songs?page=2&page_size=3'
         page[:meta][:songs][:last_href].should == '/songs?page=6&page_size=3'
       end
@@ -110,8 +107,6 @@ describe RestPack::Serializer::Paging do
       it "returns first page" do
         page[:meta][:songs][:page].should == 1
         page[:meta][:songs][:page_size].should == 10
-        page[:meta][:songs][:previous_page].should == nil
-        page[:meta][:songs][:next_page].should == 2
       end
     end
 
@@ -121,8 +116,6 @@ describe RestPack::Serializer::Paging do
       it "returns second page" do
         page[:songs].length.should == 8
         page[:meta][:songs][:page].should == 2
-        page[:meta][:songs][:previous_page].should == 1
-        page[:meta][:songs][:next_page].should == nil
         page[:meta][:songs][:previous_href].should == '/songs'
       end
     end
@@ -134,12 +127,8 @@ describe RestPack::Serializer::Paging do
         page[:linked][:albums].should_not == nil
       end
 
-      it "includes the side-loads in the main meta data" do
-        page[:meta][:songs][:include].should == ["albums"]
-      end
-
       it "includes the side-loads in page hrefs" do
-        page[:meta][:songs][:next_href].should == '/songs?page=2&include=albums'
+        page[:meta][:songs][:next_href].should == '/songs?include=albums&page=2'
       end
 
       it "includes links between documents" do
@@ -163,7 +152,11 @@ describe RestPack::Serializer::Paging do
         end
 
         it "includes the side-loads in page hrefs" do
-          page[:meta][:songs][:next_href].should == '/songs?page=2&include=albums,artists'
+          url = URI.parse(page[:meta][:songs][:next_href])
+          params = CGI.parse(url.query)
+          expect(url.path).to eq("/songs")
+          expect(params["include"]).to eq(['albums,artists'])
+          expect(params["page"]).to eq(['2'])
         end
 
         it "includes links" do
@@ -194,7 +187,7 @@ describe RestPack::Serializer::Paging do
         end
 
         it "includes the filter in page hrefs" do
-          page[:meta][:songs][:next_href].should == "/songs?page=2&album_id=#{@album1.id}"
+          page[:meta][:songs][:next_href].should == "/songs?album_id=#{@album1.id}&page=2"
         end
       end
     end
@@ -244,8 +237,6 @@ describe RestPack::Serializer::Paging do
       it "includes valid paging meta data" do
         page[:meta][:songs][:count].should == 18
         page[:meta][:songs][:page_count].should == 2
-        page[:meta][:songs][:previous_page].should == nil
-        page[:meta][:songs][:next_page].should == 2
       end
     end
 

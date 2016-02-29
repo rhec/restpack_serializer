@@ -2,9 +2,8 @@ module RestPack::Serializer::Filterable
   extend ActiveSupport::Concern
 
   module ClassMethods
-        
     def date_filter_suffixes
-      ["gt","lt","gte","lte"]
+      %w(gt lt gte lte)
     end
 
     def map_date_filter_suffix_to_operator suffix

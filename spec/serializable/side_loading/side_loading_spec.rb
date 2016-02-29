@@ -77,19 +77,32 @@ describe RestPack::Serializer::SideLoading do
   end
 
   describe "#filterable_by" do
+    let(:default_date_filters) do
+      [
+        "created_at_gt",
+        "created_at_lt",
+        "created_at_gte",
+        "created_at_lte",
+        "updated_at_gt",
+        "updated_at_lt",
+        "updated_at_gte",
+        "updated_at_lte",
+      ]
+    end
+
     context "a model with no :belongs_to relations" do
       it "is filterable by :id only" do
-        MyApp::ArtistSerializer.filterable_by.should == [:id]
+        MyApp::ArtistSerializer.filterable_by.should == [:id] + default_date_filters
       end
     end
     context "a model with a single :belongs_to relations" do
       it "is filterable by primary key and foreign keys" do
-        MyApp::AlbumSerializer.filterable_by.should =~ [:id, :artist_id, :year]
+        MyApp::AlbumSerializer.filterable_by.should =~ [:id, :artist_id, :year]+ default_date_filters
       end
     end
     context "a model with multiple :belongs_to relations" do
       it "is filterable by primary key and foreign keys" do
-        MyApp::SongSerializer.filterable_by.should =~ [:id, :artist_id, :album_id, :title]
+        MyApp::SongSerializer.filterable_by.should =~ [:id, :artist_id, :album_id, :title]+ default_date_filters
       end
     end
   end
