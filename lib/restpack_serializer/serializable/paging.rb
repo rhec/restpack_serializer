@@ -64,7 +64,12 @@ module RestPack::Serializer::Paging
 
       # TODO: refactor all the param generating methods above to generate a hash directly instead
       #       of string parameters
-      hash_params = Hash[params.map { |p| p.split("=") }.sort]
+      return url unless params.any?
+      normalized_params = []
+      params.each do |param_string|
+        normalized_params += param_string.split("&")
+      end
+      hash_params = Hash[normalized_params.map { |p| p.split("=") }.sort]
       url += '?' + hash_params.to_query if params.any?
       url
     end
