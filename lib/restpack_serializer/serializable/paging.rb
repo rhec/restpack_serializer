@@ -75,9 +75,18 @@ module RestPack::Serializer::Paging
     end
 
     def sort_clause sorting_parameters
-      case_insensitive_sorting_attributes ||= []
-      sorting_parameters.map do |col_name, sort_direction| 
-        col_name = "lower(#{col_name})" if case_insensitive_sorting_attributes.include? col_name
+      # NB: Something strange going on here where using ||= will always choose the default value
+      #     but || does not
+      ci_attrs = case_insensitive_sorting_attributes || []
+      md_attrs = month_day_sorting_attributes || []
+      sorting_parameters.map do |col_name, sort_direction|
+        if md_attrs.include? col_name
+          # DOY is day of year, so jan 1 is 1, regardless of year
+          col_name = "EXTRACT(DOY FROM #{col_name})"
+        end
+        if ci_attrs.include? col_name
+          col_name = "LOWER(#{col_name})"
+        end
         [col_name, sort_direction].join(" ")
       end.join(",")
     end
