@@ -74,7 +74,10 @@ module RestPack
         when association.macro.to_s.match(/has_/)
           scope_key = :"#{association.name}_association_scope"
           scope_filter = :"#{association.name}_association_loaded_filter"
-          if respond_to?(scope_key)
+          cache_key = :"#{association.name}_association_cache"
+          if @context[cache_key]
+            @context[cache_key].fetch(@model.id.to_s, []).map(&:to_s)
+          elsif respond_to?(scope_key)
             if model.send(association.name).loaded? && respond_to?(scope_filter)
               model.send(association.name).select { |associated| send(scope_filter, associated) }.collect { |associated| associated.id.to_s }
             else
