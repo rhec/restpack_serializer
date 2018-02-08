@@ -21,17 +21,21 @@ module RestPack
       def side_load_has_many
         has_association_relation do |options|
           options.context[:singular] = false
-          # add dynamic filters from @root_options
-          extra_scope = @root_options.context.fetch(:"#{@association.name}_association_scope", nil)
-          if extra_scope
-            options.scope = options.scope.where(extra_scope)
-          end
-          if join_table = @association.options[:through]
-            options.scope = options.scope.joins(join_table).distinct
-            association_fk = @association.through_reflection.foreign_key.to_sym
-            options.filters = { join_table => { association_fk => model_ids } }
+          if @root_options.context.has_key?(:"#{@association.name}_association_values")
+            options.scope = @root_options.context[:"#{@association.name}_association_values"]
           else
-            options.filters = { @association.foreign_key.to_sym => model_ids }
+            # add dynamic filters from @root_options
+            extra_scope = @root_options.context.fetch(:"#{@association.name}_association_scope", nil)
+            if extra_scope
+              options.scope = options.scope.where(extra_scope)
+            end
+            if join_table = @association.options[:through]
+              options.scope = options.scope.joins(join_table).distinct
+              association_fk = @association.through_reflection.foreign_key.to_sym
+              options.filters = { join_table => { association_fk => model_ids } }
+            else
+              options.filters = { @association.foreign_key.to_sym => model_ids }
+            end
           end
         end
       end
